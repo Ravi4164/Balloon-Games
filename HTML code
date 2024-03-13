@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balloon Pop Game</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  #gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-color: #87CEEB; /* Sky blue */
+  }
+  .balloon {
+    position: absolute;
+    width: 50px;
+    height: 70px;
+    background-color: #FF69B4; /* Hot pink */
+    border-radius: 50%;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="gameContainer">
+  <h1>Balloon Pop Game</h1>
+  <p>Time left: <span id="timer">02:00</span></p>
+  <p>Score: <span id="score">0</span></p>
+</div>
+
+<script>
+  let timerInterval;
+  let score = 0;
+  let balloonsPopped = 0;
+  let balloonsMissed = 0;
+
+  function startGame() {
+    timerInterval = setInterval(updateTimer, 1000);
+    generateBalloon();
+  }
+
+  function updateTimer() {
+    let timerElement = document.getElementById('timer');
+    let timeLeft = timerElement.textContent.split(':');
+    let minutes = parseInt(timeLeft[0]);
+    let seconds = parseInt(timeLeft[1]);
+
+    if (minutes === 0 && seconds === 0) {
+      endGame();
+      return;
+    }
+
+    if (seconds === 0) {
+      minutes--;
+      seconds = 59;
+    } else {
+      seconds--;
+    }
+
+    timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  function generateBalloon() {
+    let balloon = document.createElement('div');
+    balloon.className = 'balloon';
+    balloon.style.left = Math.floor(Math.random() * (window.innerWidth - 50)) + 'px';
+    balloon.style.bottom = '-70px';
+    balloon.onclick = popBalloon;
+
+    document.getElementById('gameContainer').appendChild(balloon);
+
+    let speed = Math.random() * (2 - 1) + 1; // Random speed between 1 and 2
+    moveBalloon(balloon, speed);
+  }
+
+  function moveBalloon(balloon, speed) {
+    let interval = setInterval(function() {
+      let currentBottom = parseInt(balloon.style.bottom);
+      balloon.style.bottom = (currentBottom + speed) + 'px';
+
+      if (currentBottom >= window.innerHeight) {
+        clearInterval(interval);
+        balloon.remove();
+        balloonsMissed++;
+        updateScore();
+      }
+    }, 10);
+  }
+
+  function popBalloon(event) {
+    event.target.remove();
+    score += 2;
+    balloonsPopped++;
+    updateScore();
+  }
+
+  function updateScore() {
+    document.getElementById('score').textContent = score;
+  }
+
+  function endGame() {
+    clearInterval(timerInterval);
+    alert(`Game Over!\nBalloons Popped: ${balloonsPopped}\nBalloons Missed: ${balloonsMissed}\nFinal Score: ${score}`);
+  }
+
+  // Start the game when the page loads
+  window.onload = startGame;
+</script>
+</body>
+</html>
